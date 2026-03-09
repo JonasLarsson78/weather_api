@@ -166,7 +166,8 @@ async function getYrWeatherByCoordinates(
 }
 
 async function getOpenMeteoWeatherByCoordinates(
-  coordinates: WeatherCoordinates
+  coordinates: WeatherCoordinates,
+  forecastDays = 3
 ): Promise<OpenMeteoWeatherResponse | null> {
   const openMeteoUrl = new URL('https://api.open-meteo.com/v1/forecast');
   openMeteoUrl.searchParams.set('latitude', String(coordinates.lat));
@@ -175,7 +176,7 @@ async function getOpenMeteoWeatherByCoordinates(
     'hourly',
     'temperature_2m,relative_humidity_2m,wind_speed_10m,surface_pressure,weather_code'
   );
-  openMeteoUrl.searchParams.set('forecast_days', '3');
+  openMeteoUrl.searchParams.set('forecast_days', String(forecastDays));
   openMeteoUrl.searchParams.set('timezone', 'UTC');
 
   const response = await fetch(openMeteoUrl);
@@ -194,14 +195,18 @@ async function getOpenMeteoWeatherByCoordinates(
   return data;
 }
 
-export async function getWeatherSources(city: string): Promise<WeatherSourcesResponse> {
+export async function getWeatherSources(
+  city: string,
+  forecastDays = 3
+): Promise<WeatherSourcesResponse> {
   const coordinates = await getCoordinatesForCity(city);
+  const normalizedForecastDays = Math.min(7, Math.max(1, Math.floor(forecastDays)));
 
   const [smhi, dmi, yr, openMeteo] = await Promise.all([
     getSmhiWeatherByCoordinates(coordinates),
     getDmiWeatherByCoordinates(coordinates),
     getYrWeatherByCoordinates(coordinates),
-    getOpenMeteoWeatherByCoordinates(coordinates)
+    getOpenMeteoWeatherByCoordinates(coordinates, normalizedForecastDays)
   ]);
 
   return {

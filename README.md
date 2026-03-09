@@ -89,6 +89,49 @@ Exempel med curl:
 curl -H "x-api-key: DIN_API_KEY" "http://localhost:3001/weather?city=Helsingborg"
 ```
 
+### Forecast (upp till 7 dagar)
+
+`GET /weather/forecast?city=Helsingborg&days=7`
+
+Autentisering:
+
+- Rekommenderat via header: `x-api-key: <API_KEY>`
+- Alternativt via query: `apiKey=<API_KEY>`
+
+Regler:
+
+- `city` krävs
+- `days` är valfri, default `7`
+- `days` måste vara ett heltal mellan `1` och `7`
+
+Exempel med curl:
+
+```bash
+curl -H "x-api-key: DIN_API_KEY" "http://localhost:3001/weather/forecast?city=Helsingborg&days=7"
+```
+
+Exempel på svar (förenklat):
+
+```json
+{
+  "city": "Helsingborg",
+  "coordinates": { "lat": 56.04, "lon": 12.70 },
+  "approvedTime": "2026-03-09 10:31:32",
+  "referenceTime": "2026-03-09 10:00:00",
+  "days": 7,
+  "forecast": [
+    {
+      "validTime": "2026-03-10 01:00:00",
+      "icon": { "value": "wi wi-day-cloudy", "color": "#94a3b8" },
+      "temperature": { "value": 10, "unit": "°C" },
+      "windSpeed": { "value": 4, "unit": "m/s" },
+      "humidity": { "value": 67, "unit": "%" },
+      "pressure": { "value": 1023, "unit": "hPa" }
+    }
+  ]
+}
+```
+
 ## Svarsformat (förenklat)
 
 ```json

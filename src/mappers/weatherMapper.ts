@@ -357,8 +357,14 @@ export function mapWeatherData(
   smhi: SmhiWeatherResponse,
   dmi: DmiWeatherResponse | null,
   yr: YrWeatherResponse | null,
-  openMeteo: OpenMeteoWeatherResponse | null
+  openMeteo: OpenMeteoWeatherResponse | null,
+  options?: {
+    forecastEntries?: number;
+    forecastRangeHours?: number;
+  }
 ) {
+  const forecastEntries = Math.max(1, options?.forecastEntries ?? 12);
+  const forecastRangeHours = options?.forecastRangeHours;
   const series = Array.isArray(smhi.timeSeries) ? smhi.timeSeries : [];
   const dmiSunMinutes = getDmiSunMinutes(dmi);
   const dmiSeries = Array.isArray(dmi?.timeserie) ? dmi.timeserie : [];
@@ -380,7 +386,25 @@ export function mapWeatherData(
     }
   }
 
-  const mappedSeries = series.slice(0, 12).map((entry) => {
+  let limitedSeries: typeof series;
+
+  if (typeof forecastRangeHours === 'number' && forecastRangeHours > 0 && series.length > 0) {
+    const firstEntryTimestamp = Date.parse(series[0].validTime);
+
+    if (Number.isFinite(firstEntryTimestamp)) {
+      const maxTimestamp = firstEntryTimestamp + forecastRangeHours * 60 * 60 * 1000;
+      limitedSeries = series.filter((entry) => {
+        const entryTimestamp = Date.parse(entry.validTime);
+        return Number.isFinite(entryTimestamp) && entryTimestamp <= maxTimestamp;
+      });
+    } else {
+      limitedSeries = series.slice(0, forecastEntries);
+    }
+  } else {
+    limitedSeries = series.slice(0, forecastEntries);
+  }
+
+  const mappedSeries = limitedSeries.map((entry) => {
     const params = entry.parameters || [];
 
     return {
@@ -396,7 +420,7 @@ export function mapWeatherData(
     };
   });
 
-  const averageForecast = series.slice(0, 12).map((entry) => {
+  const averageForecast = limitedSeries.map((entry) => {
     const params = entry.parameters || [];
     const entryTimeKey = toTimeKey(entry.validTime);
     const entryIsNight = isNightInStockholm(entry.validTime, dmiSunMinutes);
