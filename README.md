@@ -2,6 +2,10 @@
 
 En Node.js + TypeScript + Express API som hämtar väder från flera källor och slår ihop datan.
 
+## GitHub
+
+Repository: https://github.com/JonasLarsson78/weather_api
+
 ## Datakällor
 
 - SMHI
