@@ -1,14 +1,19 @@
 import { Response } from 'express';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { marked } from 'marked';
+import MarkdownIt from 'markdown-it';
 
 const readmePath = resolve(process.cwd(), 'README.md');
+const markdownRenderer = new MarkdownIt({
+  html: false,
+  linkify: true,
+  typographer: true
+});
 
 export async function sendReadmeMarkdown(res: Response) {
 	try {
 		const markdown = await readFile(readmePath, 'utf-8');
-		const renderedMarkdown = await marked.parse(markdown);
+		const renderedMarkdown = markdownRenderer.render(markdown);
 
 		res.type('html').send(`<!doctype html>
 <html lang="sv">

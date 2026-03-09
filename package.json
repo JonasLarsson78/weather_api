@@ -15,10 +15,11 @@
   "dependencies": {
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "marked": "^17.0.4"
+    "markdown-it": "^14.1.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/markdown-it": "^14.1.2",
     "@types/node": "^25.3.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
