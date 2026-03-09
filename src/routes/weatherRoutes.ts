@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { mapWeatherData } from '../mappers/weatherMapper';
+import { sendReadmeMarkdown } from '../services/readmeMarkdown';
 import { getWeatherSources } from '../services/weatherService';
 
 const weatherRoutes = Router();
@@ -28,8 +29,12 @@ function requireApiKey(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-weatherRoutes.get('/', (_req: Request, res: Response) => {
-  res.json({ message: 'Weather API is running' });
+weatherRoutes.get('/health', (_req: Request, res: Response) => {
+  res.json({ message: 'Weather API is running', status: 200 });
+});
+
+weatherRoutes.get('/', async (_req: Request, res: Response) => {
+  await sendReadmeMarkdown(res);
 });
 
 weatherRoutes.get('/weather', requireApiKey, async (req: Request, res: Response) => {
